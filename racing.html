@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beyond the Barrier: Investigating CV & AI-Driven Feedback Systems to Democratise Performance Coaching in Sim Racing Questionnaires</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700;900&family=JetBrains+Mono:wght@500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0b;
+    --carbon-1:#131315;
+    --carbon-2:#1b1b1e;
+    --line:#2a2a2e;
+    --red:#e10600;
+    --red-dim:#7a0400;
+    --white:#f2f1ee;
+    --grey:#8d8d93;
+    --off:#3a3a3f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0px, rgba(255,255,255,.015) 1px, transparent 1px, transparent 6px),
+      var(--black);
+    color:var(--white);
+    font-family:'Barlow',sans-serif;
+    line-height:1.5;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 24px 100px;}
+
+  /* nose stripe */
+  .stripe{height:5px;width:100%;background:linear-gradient(90deg,var(--red) 0 60%, var(--white) 60% 62%, var(--red) 62% 100%);}
+
+  .masthead{display:flex;align-items:center;justify-content:space-between;padding:22px 0 40px;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--line);margin-bottom:44px;}
+  .brand{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);}
+  .brand b{color:var(--white);}
+  .badge{
+    font-family:'Titillium Web',sans-serif;font-weight:900;font-size:13px;letter-spacing:.04em;
+    background:var(--red);color:var(--white);padding:6px 12px;border-radius:3px;
+    clip-path:polygon(6% 0,100% 0,94% 100%,0% 100%);
+  }
+
+  h1{
+    font-family:'Titillium Web',sans-serif;
+    font-weight:900;
+    font-size:clamp(34px,6vw,50px);
+    line-height:1.02;
+    letter-spacing:-0.01em;
+    margin:0 0 16px;
+    text-transform:uppercase;
+  }
+  h1 em{font-style:normal;color:var(--red);}
+  .lede{color:var(--grey);font-size:16px;max-width:54ch;margin:0 0 30px;}
+
+  .pitboard{display:flex;gap:0;margin-bottom:52px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .pitboard .tile{
+    flex:1;padding:14px 16px;text-align:center;border-right:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .pitboard .tile:last-child{border-right:none;}
+  .pitboard .tile b{display:block;color:var(--red);font-size:15px;letter-spacing:.03em;}
+  .pitboard .tile span{font-size:10px;color:var(--grey);letter-spacing:.08em;text-transform:uppercase;}
+
+  .section-label{
+    display:flex;align-items:center;gap:12px;margin-bottom:22px;
+  }
+  .section-label .tag{
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;
+    color:var(--black);background:var(--red);padding:4px 10px;border-radius:3px;text-transform:uppercase;
+  }
+  .section-label .txt{font-family:'Titillium Web',sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--grey);}
+
+  /* circuit progress line */
+  .circuit{position:relative;height:40px;margin:0 6px 44px;}
+  .circuit svg{width:100%;height:100%;overflow:visible;}
+  .circuit .track-bg{stroke:var(--line);stroke-width:3;fill:none;}
+  .circuit .track-fill{stroke:var(--red);stroke-width:3;fill:none;stroke-dasharray:600;stroke-dashoffset:600;transition:stroke-dashoffset .5s ease;filter:drop-shadow(0 0 4px rgba(225,6,0,.6));}
+  .circuit .node{fill:var(--carbon-2);stroke:var(--off);stroke-width:2;transition:all .3s ease;}
+  .circuit .node.on{fill:var(--red);stroke:var(--red);filter:drop-shadow(0 0 6px rgba(225,6,0,.8));}
+
+  .doc{
+    background:
+      repeating-linear-gradient(70deg, rgba(255,255,255,.02) 0 2px, transparent 2px 8px),
+      var(--carbon-1);
+    border:1px solid var(--line);
+    border-left:4px solid var(--off);
+    border-radius:6px;
+    padding:22px 24px;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .doc.done{border-left-color:var(--red);}
+  .doc-info{display:flex;gap:16px;align-items:flex-start;}
+  .plate{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;
+    width:34px;height:34px;min-width:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--off);color:var(--grey);transition:all .25s ease;
+  }
+  .doc.done .plate{border-color:var(--red);color:var(--red);background:rgba(225,6,0,.08);}
+  .doc-info h3{margin:0 0 6px;font-size:17px;font-family:'Titillium Web',sans-serif;font-weight:700;letter-spacing:.01em;}
+  .doc-info p{margin:0 0 8px;color:var(--grey);font-size:13.5px;max-width:42ch;}
+  .doc-info .fname{font-family:'JetBrains Mono',monospace;font-size:11px;color:#66666c;}
+
+  .btn{
+    font-family:'Titillium Web',sans-serif;font-weight:700;font-size:14px;letter-spacing:.02em;
+    border:1px solid var(--red);border-radius:5px;padding:11px 20px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;
+    background:transparent;color:var(--red);text-transform:uppercase;
+    transition:all .2s ease;
+  }
+  .btn:hover{background:var(--red);color:var(--white);}
+  .doc.done .btn{background:var(--off);border-color:var(--off);color:var(--grey);}
+
+  /* start lights gate */
+  .gate{
+    border-radius:14px;
+    padding:48px 32px 40px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(225,6,0,.12), transparent 60%),
+      var(--carbon-2);
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .lights{display:flex;justify-content:center;gap:18px;margin-bottom:26px;}
+  .lamp{
+    width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #4a0300, #1a0000);
+    border:2px solid #3a0300;
+    transition:all .3s ease;
+  }
+  .lamp.on{
+    background:radial-gradient(circle at 35% 30%, #ff2a1f, var(--red));
+    border-color:#ff5a4d;
+    box-shadow:0 0 18px 3px rgba(225,6,0,.75), 0 0 40px 8px rgba(225,6,0,.25);
+  }
+  .gate-status{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:18px;}
+  .gate-status.go{color:var(--red);}
+
+  .gate h2{font-family:'Titillium Web',sans-serif;font-weight:900;font-size:clamp(26px,4vw,34px);margin:0 0 10px;text-transform:uppercase;color:var(--off);transition:color .3s ease;}
+  .gate.unlocked h2{color:var(--white);}
+  .gate p{color:var(--grey);max-width:42ch;margin:0 auto 28px;font-size:14px;}
+
+  .survey-btn{
+    background:var(--off);color:#6a6a70;
+    font-family:'Titillium Web',sans-serif;font-weight:700;font-size:16px;letter-spacing:.03em;
+    padding:16px 34px;border-radius:8px;border:none;
+    display:inline-flex;align-items:center;gap:10px;
+    text-decoration:none;pointer-events:none;transition:all .3s ease;
+    text-transform:uppercase;
+  }
+  .gate.unlocked .survey-btn{
+    background:var(--red);color:var(--white);pointer-events:auto;
+    box-shadow:0 10px 28px -10px rgba(225,6,0,.7);
+  }
+  .gate.unlocked .survey-btn:hover{background:#ff180d;}
+
+  footer{margin-top:56px;text-align:center;font-size:12px;color:var(--grey);font-family:'JetBrains Mono',monospace;}
+  footer a{color:var(--red);text-decoration:none;}
+
+  @media (max-width:560px){
+    .doc{flex-direction:column;align-items:flex-start;}
+    .doc .btn{width:100%;justify-content:center;}
+    .pitboard{flex-direction:column;}
+    .pitboard .tile{border-right:none;border-bottom:1px solid var(--line);}
+    .pitboard .tile:last-child{border-bottom:none;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="brand"><b>UA92</b> &nbsp;+&nbsp; LANCASTER UNIVERSITY</div>
+    <div class="badge">REF ID: UA_WoD_0109</div>
+  </div>
+
+  <h1>Sim Racing and AI Coaching<br>Participants Questionnaires</em></h1>
+  <p class="lede">Before you take the survey, complete the three checkpoints below. They cover what the study looks at, how your data is handled, and what to do if something feels off along the way.</p>
+
+  <div class="pitboard">
+    <div class="tile"><b>5–10</b><span>Minutes</span></div>
+    <div class="tile"><b>ANON</b><span>Fully anonymous</span></div>
+    <div class="tile"><b>18+</b><span>Only</span></div>
+  </div>
+
+  <div class="section-label"><span class="tag">Sector 1</span><span class="txt">Track Briefing — 3 Checkpoints</span></div>
+
+  <div class="circuit">
+    <svg viewBox="0 0 700 40" preserveAspectRatio="none">
+      <path class="track-bg" d="M 20 20 L 680 20"/>
+      <path class="track-fill" id="trackFill" d="M 20 20 L 680 20"/>
+      <circle class="node" id="node1" cx="20" cy="20" r="9"/>
+      <circle class="node" id="node2" cx="350" cy="20" r="9"/>
+      <circle class="node" id="node3" cx="680" cy="20" r="9"/>
+    </svg>
+  </div>
+
+  <div class="doc" data-doc="1">
+    <div class="doc-info">
+      <div class="plate">01</div>
+      <div>
+        <h3>Participant Information Sheet</h3>
+        <p>What the research investigates, what taking part involves, and your rights as a participant.</p>
+        <span class="fname">Participant_Information_Sheet.docx</span>
+      </div>
+    </div>
+    <a class="btn" href="documents/Participant_Information_Sheet.docx" download onclick="markRead(1)">Download</a>
+  </div>
+
+  <div class="doc" data-doc="2">
+    <div class="doc-info">
+      <div class="plate">02</div>
+      <div>
+        <h3>Informed Consent Form</h3>
+        <p>Confirms you understand what participation involves and that your consent is freely given.</p>
+        <span class="fname">Informed_Consent_Form.docx</span>
+      </div>
+    </div>
+    <a class="btn" href="documents/Informed_Consent_Form.docx" download onclick="markRead(2)">Download</a>
+  </div>
+
+  <div class="doc" data-doc="3">
+    <div class="doc-info">
+      <div class="plate">03</div>
+      <div>
+        <h3>Adverse Event / Distress Procedure</h3>
+        <p>What to do, and who to contact, if you feel distressed or something goes wrong during the study.</p>
+        <span class="fname">Adverse_Event_Form.docx</span>
+      </div>
+    </div>
+    <a class="btn" href="documents/Adverse_Event_Form.docx" download onclick="markRead(3)">Download</a>
+  </div>
+
+  <div class="section-label" style="margin-top:48px;"><span class="tag">Sector 2</span><span class="txt">Lights Out</span></div>
+
+  <div class="gate" id="gate">
+    <div class="lights">
+      <div class="lamp" id="lamp1"></div>
+      <div class="lamp" id="lamp2"></div>
+      <div class="lamp" id="lamp3"></div>
+    </div>
+    <div class="gate-status" id="gateStatus">0 / 3 checkpoints cleared</div>
+    <h2 id="gateHeading">Hold on the grid</h2>
+    <p id="gateText">Clear all three checkpoints above and the lights go out — that's your signal to start the survey.</p>
+    <a class="survey-btn" id="surveyBtn" href="https://forms.office.com/Pages/ResponsePage.aspx?id=qlS-f2u_LkC-h5dns6P34_UgHCnj929EhDy-No_BguNUOU9ZNVFTQVM3R0tQNlRTWkRNSDFKVDJHTi4u" target="_blank" rel="noopener">Lights Out — Go →</a>
+  </div>
+
+  <footer>
+    Questions? <a href="mailto:l39519848@student.ua92.ac.uk">Contact the researcher</a>
+  </footer>
+
+</div>
+
+<script>
+  const state = {1:false, 2:false, 3:false};
+
+  function markRead(n){
+    state[n] = true;
+    document.querySelector(`.doc[data-doc="${n}"]`).classList.add('done');
+    document.getElementById('node'+n).classList.add('on');
+    document.getElementById('lamp'+n).classList.add('on');
+    render();
+  }
+
+  function render(){
+    const count = Object.values(state).filter(Boolean).length;
+
+    // circuit fill: 3 segments across the path length (~660 units drawn, dasharray 600 as headroom)
+    const fillMap = {0:600, 1:600-190, 2:600-390, 3:0};
+    document.getElementById('trackFill').style.strokeDashoffset = fillMap[count];
+
+    const status = document.getElementById('gateStatus');
+    const gate = document.getElementById('gate');
+    const heading = document.getElementById('gateHeading');
+    const text = document.getElementById('gateText');
+
+    status.textContent = count + ' / 3 checkpoints cleared';
+
+    if (count === 3) {
+      gate.classList.add('unlocked');
+      status.classList.add('go');
+      status.textContent = 'ALL CLEAR — LIGHTS OUT';
+      heading.textContent = "You're clear to go";
+      text.textContent = "All three checkpoints cleared. Tap in when you're ready — the survey opens in a new tab.";
+    } else {
+      gate.classList.remove('unlocked');
+      status.classList.remove('go');
+      heading.textContent = 'Hold on the grid';
+      text.textContent = 'Clear all three checkpoints above and the lights go out — that\'s your signal to start the survey.';
+    }
+  }
+</script>
+</body>
+</html>
